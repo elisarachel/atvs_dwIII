@@ -15,19 +15,23 @@ public class ServicoService {
 	@Autowired
 	private ServicoRepositorio servicoRepositorio;
 
-	public List<Servico> listarTodos() {
+	// Buscar todos os serviços
+	public List<Servico> buscarTodosServicos() {
 		return servicoRepositorio.findAll();
 	}
 
-	public Optional<Servico> buscarPorId(Long id) {
-		return servicoRepositorio.findById(id);
-	}
-
+	// Salvar um novo serviço
 	public Servico salvarServico(Servico servico) {
 		return servicoRepositorio.save(servico);
 	}
 
-	public void excluirServico(Long id) {
+	// Buscar serviço por ID (para atualização ou deleção)
+	public Optional<Servico> buscarServicoPorId(Long id) {
+		return servicoRepositorio.findById(id);
+	}
+
+	// Deletar um serviço
+	public void deletarServico(Long id) {
 		servicoRepositorio.deleteById(id);
 	}
 }

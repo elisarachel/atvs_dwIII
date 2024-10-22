@@ -15,19 +15,23 @@ public class MercadoriaService {
 	@Autowired
 	private MercadoriaRepositorio mercadoriaRepositorio;
 
-	public List<Mercadoria> listarTodas() {
+	// Buscar todas as mercadorias
+	public List<Mercadoria> buscarTodasMercadorias() {
 		return mercadoriaRepositorio.findAll();
 	}
 
-	public Optional<Mercadoria> buscarPorId(Long id) {
-		return mercadoriaRepositorio.findById(id);
-	}
-
+	// Salvar uma nova mercadoria
 	public Mercadoria salvarMercadoria(Mercadoria mercadoria) {
 		return mercadoriaRepositorio.save(mercadoria);
 	}
 
-	public void excluirMercadoria(Long id) {
+	// Buscar mercadoria por ID (para atualização ou deleção)
+	public Optional<Mercadoria> buscarMercadoriaPorId(Long id) {
+		return mercadoriaRepositorio.findById(id);
+	}
+
+	// Deletar uma mercadoria
+	public void deletarMercadoria(Long id) {
 		mercadoriaRepositorio.deleteById(id);
 	}
 }

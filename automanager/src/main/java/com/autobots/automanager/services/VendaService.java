@@ -15,19 +15,33 @@ public class VendaService {
 	@Autowired
 	private VendaRepositorio vendaRepositorio;
 
-	public List<Venda> listarTodas() {
+	// Buscar todas as vendas (administrador e gerente)
+	public List<Venda> buscarTodasVendas() {
 		return vendaRepositorio.findAll();
 	}
 
-	public Optional<Venda> buscarPorId(Long id) {
-		return vendaRepositorio.findById(id);
+	// Buscar vendas por vendedor (vendedor)
+	public List<Venda> buscarVendasPorVendedor(Long vendedorId) {
+		return vendaRepositorio.findByFuncionarioId(vendedorId);
 	}
 
+	// Buscar vendas por cliente (cliente)
+	public List<Venda> buscarVendasPorCliente(Long clienteId) {
+		return vendaRepositorio.findByClienteId(clienteId);
+	}
+
+	// Salvar uma nova venda (administrador e gerente)
 	public Venda salvarVenda(Venda venda) {
 		return vendaRepositorio.save(venda);
 	}
 
-	public void excluirVenda(Long id) {
+	// Buscar venda por ID (para atualização ou deleção)
+	public Optional<Venda> buscarVendaPorId(Long id) {
+		return vendaRepositorio.findById(id);
+	}
+
+	// Deletar uma venda (administrador e gerente)
+	public void deletarVenda(Long id) {
 		vendaRepositorio.deleteById(id);
 	}
 }

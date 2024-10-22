@@ -3,6 +3,7 @@ package com.autobots.automanager.services;
 import java.util.List;
 import java.util.Optional;
 
+import com.autobots.automanager.enumeracoes.Perfil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,5 +30,13 @@ public class UsuarioService {
 
 	public void excluirUsuario(Long id) {
 		usuarioRepositorio.deleteById(id);
+	}
+
+	public Optional<Usuario> buscarPorNomeUsuario(String nomeUsuario) {
+		return usuarioRepositorio.findByNomeUsuario(nomeUsuario);
+	}
+
+	public List<Usuario> listarPorPerfil(Perfil perfil) {
+		return usuarioRepositorio.findByPerfisContaining(perfil);
 	}
 }
