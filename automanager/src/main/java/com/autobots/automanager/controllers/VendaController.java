@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.autobots.automanager.entidades.Venda;
-import com.autobots.automanager.servicos.VendaService;
+import com.autobots.automanager.services.VendaService;
 
 @RestController
 @RequestMapping("/vendas")
