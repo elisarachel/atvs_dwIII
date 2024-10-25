@@ -28,6 +28,24 @@ public class VendaController {
 		return venda.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
+	@PutMapping("/{id}")
+	public ResponseEntity<Venda> atualizarVenda(@PathVariable Long id, @RequestBody Venda vendaDetails) {
+		Optional<Venda> vendaOpt = vendaService.buscarPorId(id);
+		if (vendaOpt.isPresent()) {
+			Venda venda = vendaOpt.get();
+			venda.setCadastro(vendaDetails.getCadastro());
+			venda.setIdentificacao(vendaDetails.getIdentificacao());
+			venda.setCliente(vendaDetails.getCliente());
+			venda.setFuncionario(vendaDetails.getFuncionario());
+			venda.setMercadorias(vendaDetails.getMercadorias());
+			venda.setServicos(vendaDetails.getServicos());
+			venda.setVeiculo(vendaDetails.getVeiculo());
+			return ResponseEntity.ok(vendaService.salvarVenda(venda));
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
 	@PostMapping
 	public Venda criarVenda(@RequestBody Venda venda) {
 		return vendaService.salvarVenda(venda);

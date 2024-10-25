@@ -41,6 +41,28 @@ public class UsuarioController {
 		return ResponseEntity.noContent().build();
 	}
 
+	@PutMapping("/{id}")
+	public ResponseEntity<Usuario> atualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuarioDetails) {
+		Optional<Usuario> usuarioOpt = usuarioService.buscarPorId(id);
+		if (usuarioOpt.isPresent()) {
+			Usuario usuario = usuarioOpt.get();
+			usuario.setNome(usuarioDetails.getNome());
+			usuario.setNomeSocial(usuarioDetails.getNomeSocial());
+			usuario.setPerfis(usuarioDetails.getPerfis());
+			usuario.setTelefones(usuarioDetails.getTelefones());
+			usuario.setEndereco(usuarioDetails.getEndereco());
+			usuario.setDocumentos(usuarioDetails.getDocumentos());
+			usuario.setEmails(usuarioDetails.getEmails());
+			usuario.setCredenciais(usuarioDetails.getCredenciais());
+			usuario.setMercadorias(usuarioDetails.getMercadorias());
+			usuario.setVendas(usuarioDetails.getVendas());
+			usuario.setVeiculos(usuarioDetails.getVeiculos());
+			return ResponseEntity.ok(usuarioService.salvarUsuario(usuario));
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
 	@PostMapping("/{usuarioId}/adicionar-credencial")
 	public ResponseEntity<Usuario> adicionarCredencial(
 			@PathVariable Long usuarioId,

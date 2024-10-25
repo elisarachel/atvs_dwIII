@@ -38,6 +38,26 @@ public class EmpresaController {
 		return empresaService.salvarEmpresa(empresa);
 	}
 
+	@PutMapping("/{id}")
+	public ResponseEntity<Empresa> atualizarEmpresa(@PathVariable Long id, @RequestBody Empresa empresaDetails) {
+	    Optional<Empresa> empresaOpt = empresaService.buscarPorId(id);
+	    if (empresaOpt.isPresent()) {
+	        Empresa empresa = empresaOpt.get();
+	        empresa.setRazaoSocial(empresaDetails.getRazaoSocial());
+	        empresa.setNomeFantasia(empresaDetails.getNomeFantasia());
+	        empresa.setTelefones(empresaDetails.getTelefones());
+	        empresa.setEndereco(empresaDetails.getEndereco());
+	        empresa.setCadastro(empresaDetails.getCadastro());
+	        empresa.setUsuarios(empresaDetails.getUsuarios());
+	        empresa.setMercadorias(empresaDetails.getMercadorias());
+	        empresa.setServicos(empresaDetails.getServicos());
+	        empresa.setVendas(empresaDetails.getVendas());
+	        return ResponseEntity.ok(empresaService.salvarEmpresa(empresa));
+	    } else {
+	        return ResponseEntity.notFound().build();
+	    }
+	}
+
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> excluirEmpresa(@PathVariable Long id) {
 		empresaService.excluirEmpresa(id);

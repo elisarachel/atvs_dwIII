@@ -33,6 +33,24 @@ public class MercadoriaController {
 		return mercadoriaService.salvarMercadoria(mercadoria);
 	}
 
+	@PutMapping("/{id}")
+	public ResponseEntity<Mercadoria> atualizarMercadoria(@PathVariable Long id, @RequestBody Mercadoria mercadoriaDetails) {
+		Optional<Mercadoria> mercadoriaOpt = mercadoriaService.buscarPorId(id);
+		if (mercadoriaOpt.isPresent()) {
+			Mercadoria mercadoria = mercadoriaOpt.get();
+			mercadoria.setNome(mercadoriaDetails.getNome());
+			mercadoria.setDescricao(mercadoriaDetails.getDescricao());
+			mercadoria.setValor(mercadoriaDetails.getValor());
+			mercadoria.setValidade(mercadoriaDetails.getValidade());
+			mercadoria.setFabricao(mercadoriaDetails.getFabricao());
+			mercadoria.setCadastro(mercadoriaDetails.getCadastro());
+			mercadoria.setQuantidade(mercadoriaDetails.getQuantidade());
+			return ResponseEntity.ok(mercadoriaService.salvarMercadoria(mercadoria));
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> excluirMercadoria(@PathVariable Long id) {
 		mercadoriaService.excluirMercadoria(id);

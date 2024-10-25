@@ -14,28 +14,44 @@ import com.autobots.automanager.services.VeiculoService;
 @RequestMapping("/veiculos")
 public class VeiculoController {
 
-	@Autowired
-	private VeiculoService veiculoService;
+    @Autowired
+    private VeiculoService veiculoService;
 
-	@GetMapping
-	public List<Veiculo> listarTodos() {
-		return veiculoService.listarTodos();
-	}
+    @GetMapping
+    public List<Veiculo> listarTodos() {
+        return veiculoService.listarTodos();
+    }
 
-	@GetMapping("/{id}")
-	public ResponseEntity<Veiculo> buscarPorId(@PathVariable Long id) {
-		Optional<Veiculo> veiculo = veiculoService.buscarPorId(id);
-		return veiculo.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-	}
+    @GetMapping("/{id}")
+    public ResponseEntity<Veiculo> buscarPorId(@PathVariable Long id) {
+        Optional<Veiculo> veiculo = veiculoService.buscarPorId(id);
+        return veiculo.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
-	@PostMapping
-	public Veiculo criarVeiculo(@RequestBody Veiculo veiculo) {
-		return veiculoService.salvarVeiculo(veiculo);
-	}
+    @PutMapping("/{id}")
+    public ResponseEntity<Veiculo> atualizarVeiculo(@PathVariable Long id, @RequestBody Veiculo veiculoDetails) {
+        Optional<Veiculo> veiculoOpt = veiculoService.buscarPorId(id);
+        if (veiculoOpt.isPresent()) {
+            Veiculo veiculo = veiculoOpt.get();
+            veiculo.setTipo(veiculoDetails.getTipo());
+            veiculo.setModelo(veiculoDetails.getModelo());
+            veiculo.setPlaca(veiculoDetails.getPlaca());
+            veiculo.setProprietario(veiculoDetails.getProprietario());
+            veiculo.setVendas(veiculoDetails.getVendas());
+            return ResponseEntity.ok(veiculoService.salvarVeiculo(veiculo));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> excluirVeiculo(@PathVariable Long id) {
-		veiculoService.excluirVeiculo(id);
-		return ResponseEntity.noContent().build();
-	}
+    @PostMapping
+    public Veiculo criarVeiculo(@RequestBody Veiculo veiculo) {
+        return veiculoService.salvarVeiculo(veiculo);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluirVeiculo(@PathVariable Long id) {
+        veiculoService.excluirVeiculo(id);
+        return ResponseEntity.noContent().build();
+    }
 }

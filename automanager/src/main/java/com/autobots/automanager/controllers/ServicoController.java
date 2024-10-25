@@ -28,6 +28,20 @@ public class ServicoController {
 		return servico.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
+	@PutMapping("/{id}")
+	public ResponseEntity<Servico> atualizarServico(@PathVariable Long id, @RequestBody Servico servicoDetails) {
+		Optional<Servico> servicoOpt = servicoService.buscarPorId(id);
+		if (servicoOpt.isPresent()) {
+			Servico servico = servicoOpt.get();
+			servico.setNome(servicoDetails.getNome());
+			servico.setValor(servicoDetails.getValor());
+			servico.setDescricao(servicoDetails.getDescricao());
+			return ResponseEntity.ok(servicoService.salvarServico(servico));
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
 	@PostMapping
 	public Servico criarServico(@RequestBody Servico servico) {
 		return servicoService.salvarServico(servico);
