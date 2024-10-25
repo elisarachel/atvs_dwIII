@@ -1,15 +1,12 @@
 package com.autobots.automanager.entidades;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "telefones")
 public class Telefone {
 	@Id()
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -30,7 +30,7 @@ public class AutomanagerApplication {
 		@Override
 		public void run(ApplicationArguments args) throws Exception {
 			Calendar calendario = Calendar.getInstance();
-			calendario.set(2002, 05, 15);
+			calendario.set(2002, Calendar.JUNE, 15);
 
 			Cliente cliente = new Cliente();
 			cliente.setNome("Pedro Alcântara de Bragança e Bourbon");
