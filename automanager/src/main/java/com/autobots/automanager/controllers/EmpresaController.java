@@ -3,6 +3,8 @@ package com.autobots.automanager.controllers;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +44,21 @@ public class EmpresaController {
 	public ResponseEntity<Void> excluirEmpresa(@PathVariable Long id) {
 		empresaService.excluirEmpresa(id);
 		return ResponseEntity.noContent().build();
+	}
+
+	@PutMapping("/{id}")
+	public ResponseEntity<Empresa> atualizarEmpresa(@PathVariable Long id, @RequestBody Empresa empresaDetails) {
+		Optional<Empresa> empresaOpt = empresaService.buscarPorId(id);
+		if (empresaOpt.isPresent()) {
+			Empresa empresa = empresaOpt.get();
+			empresa.setNome(empresaDetails.getNome());
+			empresa.setEndereco(empresaDetails.getEndereco());
+			empresa.setTelefones(empresaDetails.getTelefones());
+			empresa.setUsuarios(empresaDetails.getUsuarios());
+			return ResponseEntity.ok(empresaService.salvarEmpresa(empresa));
+		} else {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@PostMapping("/{empresaId}/associar-usuario/{usuarioId}")

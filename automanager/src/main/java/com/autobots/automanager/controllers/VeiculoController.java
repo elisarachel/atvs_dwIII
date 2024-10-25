@@ -28,6 +28,22 @@ public class VeiculoController {
 		return veiculo.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
+	@PutMapping("/{id}")
+	public ResponseEntity<Veiculo> atualizarVeiculo(@PathVariable Long id, @RequestBody Veiculo veiculoDetails) {
+		Optional<Veiculo> veiculoOpt = veiculoService.buscarPorId(id);
+		if (veiculoOpt.isPresent()) {
+			Veiculo veiculo = veiculoOpt.get();
+			veiculo.setTipo(veiculoDetails.getTipo());
+			veiculo.setModelo(veiculoDetails.getModelo());
+			veiculo.setPlaca(veiculoDetails.getPlaca());
+			veiculo.setProprietario(veiculoDetails.getProprietario());
+			veiculo.setVendas(veiculoDetails.getVendas());
+			return ResponseEntity.ok(veiculoService.salvarVeiculo(veiculo));
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
 	@PostMapping
 	public Veiculo criarVeiculo(@RequestBody Veiculo veiculo) {
 		return veiculoService.salvarVeiculo(veiculo);
