@@ -2,7 +2,10 @@ package com.autobots.automanager.controllers;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.autobots.automanager.converter.UsuarioConverter;
+import com.autobots.automanager.dto.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +22,13 @@ public class UsuarioController {
 	@Autowired
 	private UsuarioService usuarioService;
 
+	private final UsuarioConverter usuarioConverter = new UsuarioConverter();
+
 	@GetMapping
-	public List<Usuario> listarTodos() {
-		return usuarioService.listarTodos();
+	public List<UsuarioDTO> listarTodos() {
+		return usuarioService.listarTodos().stream()
+				.map(usuarioConverter::toDTO)
+				.collect(Collectors.toList());
 	}
 
 	@GetMapping("/{id}")

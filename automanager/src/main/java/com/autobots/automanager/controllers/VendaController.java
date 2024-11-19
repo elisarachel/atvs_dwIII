@@ -2,7 +2,10 @@ package com.autobots.automanager.controllers;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.autobots.automanager.converter.VendaConverter;
+import com.autobots.automanager.dto.VendaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +20,13 @@ public class VendaController {
 	@Autowired
 	private VendaService vendaService;
 
+	private final VendaConverter vendaConverter = new VendaConverter();
+
 	@GetMapping
-	public List<Venda> listarTodas() {
-		return vendaService.listarTodas();
+	public List<VendaDTO> listarTodas() {
+		return vendaService.listarTodas().stream()
+				.map(vendaConverter::toDTO)
+				.collect(Collectors.toList());
 	}
 
 	@GetMapping("/{id}")
