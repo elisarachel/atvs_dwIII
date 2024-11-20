@@ -47,11 +47,15 @@ public class UserDetailsImpl implements UserDetails {
 		return null;
 	}
 
+	public Perfil getPerfil() {
+		return usuario.getPerfis().iterator().next();
+	}
+
 	private List<CredencialUsuarioSenha> filtrarCredenciaisSenha() {
 		List<CredencialUsuarioSenha> credenciaisUsuarioSenha = new ArrayList<>();
-		for (Credencial credencial : usuario.getCredenciais()) {
-			if (credencial instanceof CredencialUsuarioSenha) {
-				credenciaisUsuarioSenha.add((CredencialUsuarioSenha) credencial);
+		for (CredencialUsuarioSenha credencial : usuario.getCredenciais()) {
+			if (credencial != null) {
+				credenciaisUsuarioSenha.add(credencial);
 			}
 		}
 		return credenciaisUsuarioSenha;

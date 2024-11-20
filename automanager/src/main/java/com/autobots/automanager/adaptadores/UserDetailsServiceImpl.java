@@ -40,9 +40,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	private List<CredencialUsuarioSenha> filtrarCredenciaisSenha(Usuario usuario) {
 		List<CredencialUsuarioSenha> credenciaisUsuarioSenha = new ArrayList<>();
-		for (Credencial credencial : usuario.getCredenciais()) {
-			if (credencial instanceof CredencialUsuarioSenha) {
-				credenciaisUsuarioSenha.add((CredencialUsuarioSenha) credencial);
+		for (CredencialUsuarioSenha credencial : usuario.getCredenciais()) {
+			if (credencial != null) {
+				credenciaisUsuarioSenha.add(credencial);
 			}
 		}
 		return credenciaisUsuarioSenha;

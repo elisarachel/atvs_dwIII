@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.autobots.automanager.adaptadores.UserDetailsImpl;
 import com.autobots.automanager.entidades.CredencialUsuarioSenha;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,8 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Autenticador extends UsernamePasswordAuthenticationFilter {
 
-	private AuthenticationManager gerenciadorAutenticacao;
-	private ProvedorJwt provedorJwt;
+	private final AuthenticationManager gerenciadorAutenticacao;
+	private final ProvedorJwt provedorJwt;
 
 	public Autenticador(AuthenticationManager gerenciadorAutenticacao, ProvedorJwt provedorJwt) {
 		this.gerenciadorAutenticacao = gerenciadorAutenticacao;
@@ -43,16 +44,15 @@ public class Autenticador extends UsernamePasswordAuthenticationFilter {
 		}
 		UsernamePasswordAuthenticationToken dadosAutenticacao = new UsernamePasswordAuthenticationToken(
 				credencial.getNomeUsuario(), credencial.getSenha(), new ArrayList<>());
-		Authentication autenticacao = gerenciadorAutenticacao.authenticate(dadosAutenticacao);
-		return autenticacao;
+		return gerenciadorAutenticacao.authenticate(dadosAutenticacao);
 	}
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication autenticacao) throws IOException, ServletException {
-		UserDetails usuario = (UserDetails) autenticacao.getPrincipal();
+		UserDetailsImpl usuario = (UserDetailsImpl) autenticacao.getPrincipal();
 		String nomeUsuario = usuario.getUsername();
-		String jwt = provedorJwt.proverJwt(nomeUsuario);
+		String jwt = provedorJwt.proverJwt(nomeUsuario, usuario.getPerfil());
 		response.addHeader("Authorization", "Bearer " + jwt);
 	}
 }

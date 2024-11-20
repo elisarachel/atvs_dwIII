@@ -8,11 +8,7 @@ class ValidadorCabecalho {
 	}
 
 	public boolean validar() {
-		if (cabecalho != null && cabecalho.startsWith("Bearer ")) {
-			return true;
-		} else {
-			return false;
-		}
+		return cabecalho != null && cabecalho.startsWith("Bearer ");
 	}
 
 }

@@ -2,7 +2,10 @@ package com.autobots.automanager.controllers;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.autobots.automanager.converter.EmpresaConverter;
+import com.autobots.automanager.dto.EmpresaDTO;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +27,13 @@ public class EmpresaController {
 	@Autowired
 	private UsuarioService usuarioService;
 
+	private final EmpresaConverter empresaConverter = new EmpresaConverter();
+
 	@GetMapping
-	public List<Empresa> listarTodas() {
-		return empresaService.listarTodas();
+	public List<EmpresaDTO> listarTodas() {
+		return empresaService.listarTodas().stream()
+				.map(empresaConverter::toDTO)
+				.collect(Collectors.toList());
 	}
 
 	@GetMapping("/{id}")

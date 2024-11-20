@@ -9,7 +9,6 @@ class AnalisadorCabecalho {
 
 	public String obterJwt() {
 		String[] partes = cabecalho.split(" ");
-		String jwt = partes[1];
-		return jwt;
+		return partes[1];
 	}
 }

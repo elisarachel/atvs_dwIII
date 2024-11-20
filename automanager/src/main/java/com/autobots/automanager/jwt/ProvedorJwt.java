@@ -1,5 +1,6 @@
 package com.autobots.automanager.jwt;
 
+import com.autobots.automanager.enumeracoes.Perfil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,9 +19,9 @@ public class ProvedorJwt {
 	private AnalisadorJwt analisador;
 	private ValidadorJwt validador;
 
-	public String proverJwt(String nomeUsuario) {
+	public String proverJwt(String nomeUsuario, Perfil roles) {
 		gerador = new GeradorJwt(assinatura, duracao);
-		return gerador.gerarJwt(nomeUsuario);
+		return gerador.gerarJwt(nomeUsuario, roles);
 	}
 
 	public boolean validarJwt(String jwt) {

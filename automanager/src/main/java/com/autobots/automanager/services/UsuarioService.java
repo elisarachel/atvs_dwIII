@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.repositorios.UsuarioRepositorio;
+import com.autobots.automanager.configuracao.AuthenticationFacade;
 
 @Service
 public class UsuarioService {
@@ -32,11 +33,48 @@ public class UsuarioService {
 		usuarioRepositorio.deleteById(id);
 	}
 
-	public Optional<Usuario> buscarPorNomeUsuario(String nomeUsuario) {
-		return usuarioRepositorio.findByNomeUsuario(nomeUsuario);
+	@Autowired
+	public AuthenticationFacade authenticationFacade;
+
+	public boolean temPermissaoParaAlterar(Usuario usuarioAlvo) {
+		Usuario usuarioAutenticado = authenticationFacade.getUsuarioAutenticado();
+
+		// Administrador pode alterar qualquer usuário
+		if (usuarioAutenticado.getPerfis().contains(Perfil.ROLE_ADMIN)) {
+			return true;
+		}
+
+		// Gerente pode alterar vendedores e clientes
+		if (usuarioAutenticado.getPerfis().contains(Perfil.ROLE_GERENTE)) {
+			return usuarioAlvo.getPerfis().stream().allMatch(perfil ->
+					perfil == Perfil.ROLE_VENDEDOR || perfil == Perfil.ROLE_CLIENTE);
+		}
+
+		// Vendedor pode alterar apenas clientes
+		if (usuarioAutenticado.getPerfis().contains(Perfil.ROLE_VENDEDOR)) {
+			return usuarioAlvo.getPerfis().contains(Perfil.ROLE_CLIENTE);
+		}
+
+		// Cliente pode alterar apenas seus próprios dados
+		return usuarioAlvo.getId().equals(usuarioAutenticado.getId());
 	}
 
-	public List<Usuario> listarPorPerfil(Perfil perfil) {
-		return usuarioRepositorio.findByPerfisContaining(perfil);
+	public void atualizarDadosPermitidos(Usuario usuarioAtual, Usuario dadosAtualizados) {
+		Usuario usuarioAutenticado = authenticationFacade.getUsuarioAutenticado();
+
+		// Cliente pode alterar apenas dados pessoais limitados
+		if (usuarioAutenticado.getPerfis().contains(Perfil.ROLE_CLIENTE)) {
+			usuarioAtual.setNome(dadosAtualizados.getNome());
+			usuarioAtual.setEmails(dadosAtualizados.getEmails());
+		} else {
+			// Outros perfis podem alterar todos os campos
+			usuarioAtual.setNome(dadosAtualizados.getNome());
+			usuarioAtual.setEmails(dadosAtualizados.getEmails());
+			usuarioAtual.setPerfis(dadosAtualizados.getPerfis());
+		}
+	}
+
+	public Usuario getUsuarioAutenticado() {
+        return authenticationFacade.getUsuarioAutenticado();
 	}
 }

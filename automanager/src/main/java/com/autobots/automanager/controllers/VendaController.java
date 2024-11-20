@@ -2,7 +2,10 @@ package com.autobots.automanager.controllers;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.autobots.automanager.converter.VendaConverter;
+import com.autobots.automanager.dto.VendaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.autobots.automanager.entidades.Venda;
 import com.autobots.automanager.services.VendaService;
+import com.autobots.automanager.converter.VendaConverter;
+import com.autobots.automanager.dto.VendaDTO;
 
 @RestController
 @RequestMapping("/vendas")
@@ -19,12 +24,15 @@ public class VendaController {
 	@Autowired
 	private VendaService vendaService;
 
+	private final VendaConverter vendaConverter = new VendaConverter();
+
 	// Administrador e Gerente podem listar todas as vendas
 	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
 	@GetMapping
-	public ResponseEntity<List<Venda>> listarVendas() {
-		List<Venda> vendas = vendaService.buscarTodasVendas();
-		return ResponseEntity.ok(vendas);
+	public List<VendaDTO> listarTodas() {
+		return vendaService.buscarTodasVendas().stream()
+				.map(vendaConverter::toDTO)
+				.collect(Collectors.toList());
 	}
 
 	// Vendedor pode listar suas próprias vendas

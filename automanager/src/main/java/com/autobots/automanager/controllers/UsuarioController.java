@@ -2,7 +2,11 @@ package com.autobots.automanager.controllers;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.autobots.automanager.converter.UsuarioConverter;
+import com.autobots.automanager.dto.UsuarioDTO;
+import com.autobots.automanager.entidades.CredencialUsuarioSenha;
 import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,85 +26,108 @@ public class UsuarioController {
 	@Autowired
 	private UsuarioService usuarioService;
 
+	private final UsuarioConverter usuarioConverter = new UsuarioConverter();
+
+	// LISTAR TODOS
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@GetMapping
-	public List<Usuario> listarTodos() {
-		return usuarioService.listarTodos();
+	public List<UsuarioDTO> listarTodos() {
+		Usuario usuarioAutenticado = usuarioService.getUsuarioAutenticado();
+		return usuarioService.listarTodos().stream()
+				.filter(usuario -> {
+					if (usuarioAutenticado.getPerfis().contains(Perfil.ROLE_ADMIN)) {
+						return true; // Admin can see all users
+					} else if (usuarioAutenticado.getPerfis().contains(Perfil.ROLE_GERENTE)) {
+						return usuario.getPerfis().contains(Perfil.ROLE_GERENTE) ||
+								usuario.getPerfis().contains(Perfil.ROLE_VENDEDOR) ||
+								usuario.getPerfis().contains(Perfil.ROLE_CLIENTE);
+					} else if (usuarioAutenticado.getPerfis().contains(Perfil.ROLE_VENDEDOR)) {
+						return usuario.getPerfis().contains(Perfil.ROLE_VENDEDOR) ||
+								usuario.getPerfis().contains(Perfil.ROLE_CLIENTE);
+					}
+					return false;
+				})
+				.map(usuarioConverter::toDTO)
+				.collect(Collectors.toList());
 	}
 
+	// BUSCAR POR ID
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR', 'CLIENTE')")
 	public ResponseEntity<Usuario> buscarPorId(@PathVariable Long id) {
-		Optional<Usuario> usuario = usuarioService.buscarPorId(id);
-		return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+		Optional<Usuario> usuarioOpt = usuarioService.buscarPorId(id);
+
+		if (usuarioOpt.isPresent()) {
+			Usuario usuario = usuarioOpt.get();
+
+			// Validar permissões para acesso
+			if (usuarioService.temPermissaoParaAlterar(usuario)) {
+				return ResponseEntity.ok(usuario);
+			} else {
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+			}
+		}
+
+		return ResponseEntity.notFound().build();
 	}
 
+	// CRIAR USUÁRIO
 	@PostMapping
-	public Usuario criarUsuario(@RequestBody Usuario usuario) {
-		return usuarioService.salvarUsuario(usuario);
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
+	public ResponseEntity<Usuario> criarUsuario(@RequestBody Usuario usuario) {
+		// Garantir que o perfil a ser criado esteja dentro das permissões do usuário autenticado
+		if (!usuarioService.temPermissaoParaAlterar(usuario)) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
+
+		Usuario novoUsuario = usuarioService.salvarUsuario(usuario);
+		return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
 	}
 
+	// ATUALIZAR USUÁRIO
+	@PutMapping("/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR', 'CLIENTE')")
+	public ResponseEntity<Usuario> atualizarUsuario(@PathVariable Long id, @RequestBody Usuario dadosAtualizados) {
+		Optional<Usuario> usuarioOpt = usuarioService.buscarPorId(id);
+
+		if (usuarioOpt.isPresent()) {
+			Usuario usuarioAtual = usuarioOpt.get();
+
+			// Validar permissões para atualização
+			if (!usuarioService.temPermissaoParaAlterar(usuarioAtual)) {
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+			}
+
+			// Atualizar os dados permitidos
+			usuarioService.atualizarDadosPermitidos(usuarioAtual, dadosAtualizados);
+
+			// Salvar alterações
+			Usuario usuarioAtualizado = usuarioService.salvarUsuario(usuarioAtual);
+			return ResponseEntity.ok(usuarioAtualizado);
+		}
+
+		return ResponseEntity.notFound().build();
+	}
+
+	// EXCLUIR USUÁRIO
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	public ResponseEntity<Void> excluirUsuario(@PathVariable Long id) {
-		usuarioService.excluirUsuario(id);
-		return ResponseEntity.noContent().build();
-	}
-
-	@PostMapping("/{usuarioId}/adicionar-credencial")
-	public ResponseEntity<Usuario> adicionarCredencial(
-			@PathVariable Long usuarioId,
-			@RequestBody Credencial credencial) {
-
-		Optional<Usuario> usuarioOpt = usuarioService.buscarPorId(usuarioId);
+		Optional<Usuario> usuarioOpt = usuarioService.buscarPorId(id);
 
 		if (usuarioOpt.isPresent()) {
 			Usuario usuario = usuarioOpt.get();
 
-			// Associando a nova credencial ao usuário
-			usuario.getCredenciais().add(credencial);
-			credencial.setInativo(false);  // Marcar credencial como ativa
+			// Validar permissões para exclusão
+			if (!usuarioService.temPermissaoParaAlterar(usuario)) {
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+			}
 
-			// Salvando as mudanças
-			usuarioService.salvarUsuario(usuario);
-			return ResponseEntity.ok(usuario);
-		} else {
-			return ResponseEntity.notFound().build();
+			usuarioService.excluirUsuario(id);
+			return ResponseEntity.noContent().build();
 		}
-	}
 
-	@PostMapping("/{usuarioId}/adicionar-perfil/{perfil}")
-	public ResponseEntity<Usuario> adicionarPerfil(
-			@PathVariable Long usuarioId,
-			@PathVariable Perfil perfil) {
-
-		Optional<Usuario> usuarioOpt = usuarioService.buscarPorId(usuarioId);
-
-		if (usuarioOpt.isPresent()) {
-			Usuario usuario = usuarioOpt.get();
-
-			// Adicionando o perfil ao usuário
-			usuario.getPerfis().add(perfil);
-
-			// Salvando o usuário com o novo perfil
-			usuarioService.salvarUsuario(usuario);
-
-			return ResponseEntity.ok(usuario);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
-
-	@Autowired
-	private UsuarioRepositorio repositorio;
-
-	@PreAuthorize("hasAnyRole('ADMIN')")
-	@PostMapping("/cadastrar-cliente")
-	public ResponseEntity<?> cadastrarCliente(@RequestBody Usuario cliente) {
-		repositorio.save(cliente);
-		return new ResponseEntity<>(HttpStatus.CREATED);
-	}
-
-	@PreAuthorize("hasAnyRole('ADMIN','GERENTE','VENDEDOR')")
-	@GetMapping("/obter-clientes")
-	public ResponseEntity<List<Usuario>> obterClientes() {
-		return new ResponseEntity<>(repositorio.findAll(),HttpStatus.FOUND);
+		return ResponseEntity.notFound().build();
 	}
 }
+
