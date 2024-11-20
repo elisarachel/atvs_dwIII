@@ -1,5 +1,7 @@
 package com.autobots.automanager.controllers;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -84,5 +86,15 @@ public class VendaController {
 	public ResponseEntity<Void> deletarVenda(@PathVariable Long id) {
 		vendaService.deletarVenda(id);
 		return ResponseEntity.noContent().build();
+	}
+
+	@GetMapping("/empresa/{empresaId}/periodo")
+	public ResponseEntity<List<Venda>> listarVendasPorPeriodo(
+			@PathVariable Long empresaId,
+			@RequestParam("dataInicio") Date dataInicio,
+			@RequestParam("dataFim") Date dataFim) {
+
+		List<Venda> vendas = vendaService.buscarVendasPorPeriodo(empresaId, dataInicio, dataFim);
+		return ResponseEntity.ok(vendas);
 	}
 }

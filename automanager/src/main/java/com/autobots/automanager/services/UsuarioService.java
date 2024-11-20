@@ -2,6 +2,7 @@ package com.autobots.automanager.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.autobots.automanager.enumeracoes.Perfil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,5 +77,13 @@ public class UsuarioService {
 
 	public Usuario getUsuarioAutenticado() {
         return authenticationFacade.getUsuarioAutenticado();
+	}
+
+	public List<Usuario> buscarClientesPorEmpresa(Long empresaId, Set<Perfil> perfil) {
+		return usuarioRepositorio.findByEmpresaIdAndPerfis(empresaId, perfil);
+	}
+
+	public List<Usuario> buscarFuncionariosPorEmpresa(Long empresaId, Set<Perfil> perfil) {
+		return usuarioRepositorio.findByEmpresaIdAndPerfis(empresaId, perfil);
 	}
 }

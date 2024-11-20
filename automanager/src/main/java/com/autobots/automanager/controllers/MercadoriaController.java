@@ -20,17 +20,9 @@ public class MercadoriaController {
 	private MercadoriaService mercadoriaService;
 
 	// Administrador e Gerente podem listar todas as mercadorias
-	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@GetMapping
 	public ResponseEntity<List<Mercadoria>> listarMercadorias() {
-		List<Mercadoria> mercadorias = mercadoriaService.buscarTodasMercadorias();
-		return ResponseEntity.ok(mercadorias);
-	}
-
-	// Vendedor pode listar as mercadorias (apenas leitura)
-	@PreAuthorize("hasRole('VENDEDOR')")
-	@GetMapping("/vendedor")
-	public ResponseEntity<List<Mercadoria>> listarMercadoriasVendedor() {
 		List<Mercadoria> mercadorias = mercadoriaService.buscarTodasMercadorias();
 		return ResponseEntity.ok(mercadorias);
 	}
@@ -66,4 +58,11 @@ public class MercadoriaController {
 		mercadoriaService.deletarMercadoria(id);
 		return ResponseEntity.noContent().build();
 	}
+
+	@GetMapping("/empresa/{empresaId}")
+	public ResponseEntity<List<Mercadoria>> listarMercadoriasPorEmpresa(@PathVariable Long empresaId) {
+		List<Mercadoria> mercadorias = mercadoriaService.buscarMercadoriasPorEmpresa(empresaId);
+		return ResponseEntity.ok(mercadorias);
+	}
+
 }

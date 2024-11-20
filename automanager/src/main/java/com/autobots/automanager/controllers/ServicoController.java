@@ -20,17 +20,9 @@ public class ServicoController {
 	private ServicoService servicoService;
 
 	// Administrador e Gerente podem listar todos os serviços
-	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@GetMapping
 	public ResponseEntity<List<Servico>> listarServicos() {
-		List<Servico> servicos = servicoService.buscarTodosServicos();
-		return ResponseEntity.ok(servicos);
-	}
-
-	// Vendedor pode listar serviços (somente leitura)
-	@PreAuthorize("hasRole('VENDEDOR')")
-	@GetMapping("/vendedor")
-	public ResponseEntity<List<Servico>> listarServicosVendedor() {
 		List<Servico> servicos = servicoService.buscarTodosServicos();
 		return ResponseEntity.ok(servicos);
 	}
@@ -66,4 +58,11 @@ public class ServicoController {
 		servicoService.deletarServico(id);
 		return ResponseEntity.noContent().build();
 	}
+
+	@GetMapping("/empresa/{empresaId}")
+	public ResponseEntity<List<Servico>> listarServicosPorEmpresa(@PathVariable Long empresaId) {
+		List<Servico> servicos = servicoService.buscarServicosPorEmpresa(empresaId);
+		return ResponseEntity.ok(servicos);
+	}
+
 }

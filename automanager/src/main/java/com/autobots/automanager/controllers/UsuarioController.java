@@ -1,5 +1,6 @@
 package com.autobots.automanager.controllers;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -128,6 +129,18 @@ public class UsuarioController {
 		}
 
 		return ResponseEntity.notFound().build();
+	}
+
+	@GetMapping("/clientes/{empresaId}")
+	public ResponseEntity<List<Usuario>> listarClientesPorEmpresa(@PathVariable Long empresaId) {
+		List<Usuario> clientes = usuarioService.buscarClientesPorEmpresa(empresaId, Collections.singleton(Perfil.ROLE_CLIENTE));
+		return ResponseEntity.ok(clientes);
+	}
+
+	@GetMapping("/funcionarios/{empresaId}")
+	public ResponseEntity<List<Usuario>> listarFuncionariosPorEmpresa(@PathVariable Long empresaId) {
+		List<Usuario> funcionarios = usuarioService.buscarFuncionariosPorEmpresa(empresaId, Collections.singleton(Perfil.ROLE_VENDEDOR));
+		return ResponseEntity.ok(funcionarios);
 	}
 }
 

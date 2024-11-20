@@ -61,4 +61,11 @@ public class VeiculoController {
 		veiculoService.excluirVeiculo(id);
 		return ResponseEntity.noContent().build();
 	}
+
+	@GetMapping("/empresa/{empresaId}")
+	public ResponseEntity<List<Veiculo>> listarVeiculosPorEmpresa(@PathVariable Long empresaId) {
+		List<Veiculo> veiculos = veiculoService.buscarVeiculosPorEmpresa(empresaId);
+		return ResponseEntity.ok(veiculos);
+	}
+
 }

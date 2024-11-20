@@ -9,11 +9,13 @@ import com.autobots.automanager.entidades.Usuario;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface UsuarioRepositorio extends JpaRepository<Usuario, Long> {
 	@Query("SELECT u FROM Usuario u JOIN u.credenciais c WHERE TYPE(c) = CredencialUsuarioSenha AND TREAT(c AS CredencialUsuarioSenha).nomeUsuario = :nomeUsuario")
 	Optional<Usuario> findByNomeUsuario(@Param("nomeUsuario") String nomeUsuario);
 
-	List<Usuario> findByPerfisContaining(Perfil perfil);
+	@Query("SELECT u FROM Usuario u WHERE u.empresa.id = :empresaId AND u.perfis IN :perfis")
+	List<Usuario> findByEmpresaIdAndPerfis(@Param("empresaId") Long empresaId, @Param("perfis") Set<Perfil> perfis);
 }

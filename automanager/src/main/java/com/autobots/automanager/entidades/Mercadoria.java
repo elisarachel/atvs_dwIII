@@ -2,11 +2,7 @@ package com.autobots.automanager.entidades;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import lombok.Data;
 import lombok.Getter;
@@ -42,4 +38,7 @@ public class Mercadoria {
 
 	@Column()
 	private String descricao;
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+	private Empresa empresa;
 }
